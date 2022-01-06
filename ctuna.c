@@ -31,6 +31,7 @@ int tun_open(char *name)
   ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
 
   if (ioctl(fd, TUNSETIFF, &ifr) == -1) {
+    close(fd);
     return -1;
   }
 
@@ -63,6 +64,8 @@ int main(int argc, char **argv)
     error("failed to open TUN interface");
     return EXIT_FAILURE;
   }
+
+  close(tun_fd);
 
   return EXIT_SUCCESS;
 }
