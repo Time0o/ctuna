@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <sys/capability.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 
 #include <linux/if.h>
 #include <linux/if_tun.h>
@@ -19,7 +20,7 @@ static int cap_check(cap_flag_t cap)
   return ret == 1 ? 0 : -1;
 }
 
-int tun_open(char *name)
+int tun_open(char *tun_name)
 {
   int fd;
   if ((fd = open("/dev/net/tun", O_RDWR)) == -1) {
@@ -27,7 +28,7 @@ int tun_open(char *name)
   }
 
   struct ifreq ifr;
-  strncpy(ifr.ifr_name, name, IFNAMSIZ);
+  memset(&ifr, 0, sizeof(ifr));
   ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
 
   if (ioctl(fd, TUNSETIFF, &ifr) == -1) {
@@ -35,35 +36,26 @@ int tun_open(char *name)
     return -1;
   }
 
+  strcpy(tun_name, ifr.ifr_name);
+
   return fd;
-}
-
-static char *progname;
-
-static void info(char const *msg)
-{
-  printf("%s\n", msg);
-}
-
-static void error(char const *msg)
-{
-  fprintf(stderr, "%s: error: %s\n", progname, msg);
 }
 
 int main(int argc, char **argv)
 {
-  progname = argv[0];
-
   if (cap_check(CAP_NET_ADMIN) == -1) {
-    error("missing CAP_NET_ADMIN capability");
+    fprintf(stderr, "missing CAP_NET_ADMIN capability");
     return EXIT_FAILURE;
   }
 
   int tun_fd;
-  if ((tun_fd = tun_open("ctuna")) == -1) {
-    error("failed to open TUN interface");
+  char tun_name[100];
+  if ((tun_fd = tun_open(tun_name)) == -1) {
+    fprintf(stderr, "failed to open TUN interface");
     return EXIT_FAILURE;
   }
+
+  printf("opened TUN interface '%s'\n", tun_name);
 
   close(tun_fd);
 
