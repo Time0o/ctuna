@@ -1,5 +1,5 @@
-bin/ctuna: src/ctuna.cc
-	g++ -Wall -Werror $< -o $@ -lcap
+bin/ctuna: src/ctuna.cc src/tun.cc
+	g++ -Wall -Werror $^ -o $@ -Iinclude -lcap
 
 .PHONY: install
 
