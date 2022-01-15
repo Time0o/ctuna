@@ -53,12 +53,15 @@ public:
 
   void open(std::string const &addr, std::string const &netmask)
   {
+    // Open /dev/net/tun.
     if ((m_fd = ::open("/dev/net/tun", O_RDWR)) == -1)
       throw std::runtime_error("failed to open /dev/net/tun");
 
+    // Create socket.
     if ((m_sock = ::socket(AF_INET, SOCK_DGRAM, 0)) == -1)
       throw std::runtime_error("failed create socket");
 
+    // Create TUN interface.
     {
       ifreq ifr {};
       ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
@@ -69,6 +72,7 @@ public:
       std::strncpy(m_name, ifr.ifr_name, IFNAMSIZ);
     }
 
+    // Assign IP address and netmask.
     {
       ifreq ifr {};
       std::strncpy(ifr.ifr_name, m_name, IFNAMSIZ);
