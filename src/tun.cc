@@ -75,19 +75,21 @@ void TUN::open(std::string const &addr, std::string const &netmask)
 
     m_netmask = netmask;
   }
+
+  // Set interface properties.
+  {
+    ifreq ifr {};
+    std::strncpy(ifr.ifr_name, m_name, IFNAMSIZ);
+
+    ifr.ifr_flags = IFF_MULTICAST | IFF_NOARP | IFF_UP;
+
+    if (::ioctl(m_sock, SIOCSIFFLAGS, &ifr) == -1)
+      throw std::runtime_error("failed to set TUN interface into 'up' state");
+  }
 }
 
 void TUN::intercept()
 {
-  // Set interface into 'up' state.
-  ifreq ifr {};
-  std::strncpy(ifr.ifr_name, m_name, IFNAMSIZ);
-
-  ifr.ifr_flags = IFF_UP;
-
-  if (::ioctl(m_sock, SIOCSIFFLAGS, &ifr) == -1)
-    throw std::runtime_error("failed to set TUN interface into 'up' state");
-
   // Set default route to interface.
   rtentry rt {};
 
