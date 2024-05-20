@@ -22,6 +22,9 @@ struct CTuna::TUN_error : public Exception
 };
 
 
+/**
+ * TUN interface
+ */
 class CTuna::TUN
 {
 	private:
@@ -35,10 +38,27 @@ class CTuna::TUN
 
 	public:
 
+		/**
+		 * Constructor
+		 *
+		 * \param name  interface name
+		 * \param name  interface IPv4 address
+		 * \param name  interface netmask
+		 *
+		 * \throw CTuna::TUN_error  if some required operation fails
+		 *
+		 * This creates the interface, assigns it an IPv4 address and puts it
+		 * into the 'up' state.
+		 */
 		explicit TUN(char const *name,
 		             char const *addr,
 		             char const *netmask);
 
+		/**
+		 * Destructor
+		 *
+		 * This will undo all setup operations performed by the constructor.
+		 */
 		~TUN();
 
 		char const *name() const
@@ -50,8 +70,30 @@ class CTuna::TUN
 		char const *netmask() const
 		{ return _netmask; }
 
+		/**
+		 * Intercept all outgoing network traffic
+		 *
+		 * \param name  interface name
+		 * \param name  interface IPv4 address
+		 * \param name  interface netmask
+		 *
+		 * \throw CTuna::TUN_error  if some required operation fails
+		 *
+		 * This sets the default route for all outgoing packets to this
+		 * interface.
+		 */
 		void intercept();
 
+		/**
+		 * Read packet from interface
+		 *
+		 * \param buf       preallocated buffer to hold packet data
+		 * \param buf_size  size of `buf` in bytes
+		 *
+		 * \return  size of packet in bytes
+		 *
+		 * \throw CTuna::TUN_error  if a read operation fails
+		 */
 		size_t read(uint8_t *buf, size_t buf_size);
 };
 

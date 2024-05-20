@@ -20,6 +20,13 @@ struct CTuna::Cap_missing : public Exception
 
 namespace CTuna {
 
+	/**
+	 * Check if thread has a specific capability.
+	 *
+	 * \param cap  capability
+	 *
+	 * \throw CTuna::Cap_missing  if thread does not have capability.
+	 */
 	void check_cap(cap_value_t cap);
 }
 
