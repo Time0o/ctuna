@@ -119,7 +119,7 @@ std::vector<std::uint8_t> TUN::read()
   static std::uint8_t buf[1024];
 
   ssize_t bytes_read;
-  if ((bytes_read = ::read(m_fd, buf, sizeof(buf)) == -1))
+  if ((bytes_read = ::read(m_fd, buf, sizeof(buf))) == -1)
     throw std::runtime_error("failed to read from TUN interface");
 
   return std::vector<std::uint8_t>(buf, buf + bytes_read);
