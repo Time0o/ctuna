@@ -35,7 +35,9 @@ class CTuna::TUN
 
 	public:
 
-		explicit TUN(char const *name);
+		explicit TUN(char const *name,
+		             char const *addr,
+		             char const *netmask);
 
 		~TUN();
 
@@ -47,8 +49,6 @@ class CTuna::TUN
 
 		char const *netmask() const
 		{ return _netmask; }
-
-		void open(char const *addr, char const *netmask);
 
 		void intercept();
 

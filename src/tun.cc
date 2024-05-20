@@ -15,23 +15,13 @@
 #include "tun.h"
 
 
-CTuna::TUN::TUN(char const *name)
+CTuna::TUN::TUN(char const *name,
+                char const *addr,
+                char const *netmask)
 :
-	_name { name }
-{ }
-
-
-CTuna::TUN::~TUN()
-{
-	if (_fd != -1)
-		::close(_fd);
-
-	if (_sock != -1)
-		::close(_sock);
-}
-
-
-void CTuna::TUN::open(char const *addr, char const *netmask)
+	_name { name },
+	_addr { addr },
+	_netmask { netmask }
 {
 	/* Open /dev/net/tun. */
 	if ((_fd = ::open("/dev/net/tun", O_RDWR)) == -1)
@@ -44,7 +34,7 @@ void CTuna::TUN::open(char const *addr, char const *netmask)
 	/* Create TUN interface. */
 	{
 		ifreq ifr {};
-		::strncpy(ifr.ifr_name, _name, IFNAMSIZ);
+		::strncpy(ifr.ifr_name, name, IFNAMSIZ);
 		ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
 
 		if (::ioctl(_fd, TUNSETIFF, &ifr) == -1)
@@ -69,8 +59,6 @@ void CTuna::TUN::open(char const *addr, char const *netmask)
 		if (::ioctl(_sock, SIOCSIFADDR, &ifr) == -1)
 			throw TUN_error { "failed to set IP address for TUN interface" };
 
-		_addr = addr;
-
 		/* Assign netmask. */
 		if (::inet_pton(addr_.sin_family, netmask, &addr_.sin_addr) != 1)
 			throw TUN_error { "inet_pton failed for netmask" };
@@ -79,8 +67,6 @@ void CTuna::TUN::open(char const *addr, char const *netmask)
 
 		if (::ioctl(_sock, SIOCSIFNETMASK, &ifr) == -1)
 			throw TUN_error { "failed to set netmask for TUN interface" };
-
-		_netmask = netmask;
 	}
 
 	/* Set interface properties. */
@@ -93,6 +79,16 @@ void CTuna::TUN::open(char const *addr, char const *netmask)
 		if (::ioctl(_sock, SIOCSIFFLAGS, &ifr) == -1)
 			TUN_error { "failed to set TUN interface into 'up' state" };
 	}
+}
+
+
+CTuna::TUN::~TUN()
+{
+	if (_fd != -1)
+		::close(_fd);
+
+	if (_sock != -1)
+		::close(_sock);
 }
 
 

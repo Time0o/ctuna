@@ -15,9 +15,7 @@ void run()
 {
 	check_cap(CAP_NET_ADMIN);
 
-	TUN tun { "tunnel" };
-
-	tun.open("10.0.0.0", "255.255.255.0");
+	TUN tun { "tunnel", "10.0.0.0", "255.255.255.0" };
 
 	tun.intercept();
 
