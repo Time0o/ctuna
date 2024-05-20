@@ -16,12 +16,10 @@
 
 
 CTuna::TUN::TUN(char const *name,
-                char const *addr,
-                char const *netmask)
+                char const *addr)
 :
 	_name { name },
-	_addr { addr },
-	_netmask { netmask }
+	_addr { addr }
 {
 	/* Open /dev/net/tun. */
 	if ((_fd = ::open("/dev/net/tun", O_RDWR)) == -1)
@@ -42,7 +40,7 @@ CTuna::TUN::TUN(char const *name,
 
 	}
 
-	/* Assign IP address and netmask. */
+	/* Assign IP address. */
 	{
 		ifreq ifr {};
 		::strncpy(ifr.ifr_name, _name, IFNAMSIZ);
@@ -58,15 +56,6 @@ CTuna::TUN::TUN(char const *name,
 
 		if (::ioctl(_sock, SIOCSIFADDR, &ifr) == -1)
 			throw TUN_error { "failed to set IP address for TUN interface" };
-
-		/* Assign netmask. */
-		if (::inet_pton(addr_.sin_family, netmask, &addr_.sin_addr) != 1)
-			throw TUN_error { "inet_pton failed for netmask" };
-
-		ifr.ifr_netmask = *reinterpret_cast<sockaddr *>(&addr_);
-
-		if (::ioctl(_sock, SIOCSIFNETMASK, &ifr) == -1)
-			throw TUN_error { "failed to set netmask for TUN interface" };
 	}
 
 	/* Set interface properties. */

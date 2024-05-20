@@ -34,7 +34,6 @@ class CTuna::TUN
 
 		char const *_name;
 		char const *_addr;
-		char const *_netmask;
 
 	public:
 
@@ -51,8 +50,7 @@ class CTuna::TUN
 		 * into the 'up' state.
 		 */
 		explicit TUN(char const *name,
-		             char const *addr,
-		             char const *netmask);
+		             char const *addr);
 
 		/**
 		 * Destructor
@@ -66,9 +64,6 @@ class CTuna::TUN
 
 		char const *addr() const
 		{ return _addr; }
-
-		char const *netmask() const
-		{ return _netmask; }
 
 		/**
 		 * Intercept all outgoing network traffic
