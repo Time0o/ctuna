@@ -1,35 +1,46 @@
-#pragma once
+#ifndef _INCLUDE_TUN_H_
+#define _INCLUDE_TUN_H_
 
+/* stdcxx includes */
 #include <cstdint>
 #include <string>
 #include <vector>
 
+/* Linux includes */
 #include <linux/if.h>
+
 
 class TUN
 {
-public:
-  ~TUN();
+	private:
 
-  std::string name() const
-  { return m_name; }
+		int _fd { -1 };
+		int _sock { -1 };
 
-  std::string addr() const
-  { return m_addr; }
+		char _name[IFNAMSIZ];
 
-  std::string netmask() const
-  { return m_netmask; }
+		std::string _addr;
+		std::string _netmask;
 
-  void open(std::string const &addr, std::string const &netmask);
+	public:
 
-  void intercept();
+		~TUN();
 
-  std::vector<std::uint8_t> read();
+		std::string name() const
+		{ return _name; }
 
-private:
-  int m_fd { -1 };
-  int m_sock { -1 };
-  char m_name[IFNAMSIZ];
-  std::string m_addr;
-  std::string m_netmask;
+		std::string addr() const
+		{ return _addr; }
+
+		std::string netmask() const
+		{ return _netmask; }
+
+		void open(std::string const &addr, std::string const &netmask);
+
+		void intercept();
+
+		std::vector<std::uint8_t> read();
 };
+
+
+#endif /* _INCLUDE_TUN_H_ */
