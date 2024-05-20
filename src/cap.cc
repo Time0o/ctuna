@@ -1,4 +1,4 @@
-/* Linux includes */
+/* libc includes */
 #include <sys/capability.h>
 
 /* local includes */

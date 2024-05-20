@@ -4,9 +4,6 @@
 /* libc includes */
 #include <stdint.h>
 
-/* Linux includes */
-#include <linux/if.h>
-
 /* local includes */
 #include "exception.h"
 

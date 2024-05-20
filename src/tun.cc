@@ -1,15 +1,15 @@
 /* libc includes */
-#include <stdint.h>
-#include <string.h>
-
-/* Linux includes */
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <stdint.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+/* Linux includes */
 #include <linux/if.h>
 #include <linux/if_tun.h>
 #include <linux/route.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
 
 /* local includes */
 #include "tun.h"
