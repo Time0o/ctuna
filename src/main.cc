@@ -1,6 +1,7 @@
-/* stdcxx includes */
-#include <cstdlib>
-#include <iostream>
+/* libc */
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /* local includes */
 #include "cap.h"
@@ -20,9 +21,11 @@ void run()
 
 	tun.intercept();
 
+	uint8_t buf[1024];
+
 	for (;;) {
-		auto packet { tun.read() };
-		std::cout << "Read " << packet.size() << " bytes from TUN interface " << tun.name() << std::endl;
+		auto bytes_read { tun.read(buf, sizeof(buf)) };
+		::printf("Read %zu bytes from TUN interface %s\n", bytes_read, tun.name());
 	}
 }
 
@@ -33,7 +36,7 @@ int main()
 		run();
 
 	} catch (Exception const &e) {
-		std::cerr << "error: " << e.what() << std::endl;
+		::fprintf(stderr, "error: %s\n", e.what());
 		return EXIT_FAILURE;
 	}
 

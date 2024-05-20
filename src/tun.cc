@@ -1,8 +1,6 @@
-/* stdcxx includes */
-#include <cstdint>
-#include <cstring>
-#include <string>
-#include <vector>
+/* libc includes */
+#include <stdint.h>
+#include <string.h>
 
 /* Linux includes */
 #include <arpa/inet.h>
@@ -27,7 +25,7 @@ CTuna::TUN::~TUN()
 }
 
 
-void CTuna::TUN::open(std::string const &addr, std::string const &netmask)
+void CTuna::TUN::open(char const *addr, char const *netmask)
 {
 	/* Open /dev/net/tun. */
 	if ((_fd = ::open("/dev/net/tun", O_RDWR)) == -1)
@@ -45,19 +43,19 @@ void CTuna::TUN::open(std::string const &addr, std::string const &netmask)
 		if (::ioctl(_fd, TUNSETIFF, &ifr) == -1)
 			throw TUN_error { "failed to create TUN interface" };
 
-		std::strncpy(_name, ifr.ifr_name, IFNAMSIZ);
+		::strncpy(_name, ifr.ifr_name, IFNAMSIZ);
 	}
 
 	/* Assign IP address and netmask. */
 	{
 		ifreq ifr {};
-		std::strncpy(ifr.ifr_name, _name, IFNAMSIZ);
+		::strncpy(ifr.ifr_name, _name, IFNAMSIZ);
 
 		sockaddr_in addr_ {};
 		addr_.sin_family = AF_INET;
 
 		/* Assign IP address. */
-		if (::inet_pton(addr_.sin_family, addr.c_str(), &addr_.sin_addr) != 1)
+		if (::inet_pton(addr_.sin_family, addr, &addr_.sin_addr) != 1)
 			throw TUN_error { "inet_pton failed for IP address" };
 
 		ifr.ifr_addr = *reinterpret_cast<sockaddr *>(&addr_);
@@ -68,7 +66,7 @@ void CTuna::TUN::open(std::string const &addr, std::string const &netmask)
 		_addr = addr;
 
 		/* Assign netmask. */
-		if (::inet_pton(addr_.sin_family, netmask.c_str(), &addr_.sin_addr) != 1)
+		if (::inet_pton(addr_.sin_family, netmask, &addr_.sin_addr) != 1)
 			throw TUN_error { "inet_pton failed for netmask" };
 
 		ifr.ifr_netmask = *reinterpret_cast<sockaddr *>(&addr_);
@@ -82,7 +80,7 @@ void CTuna::TUN::open(std::string const &addr, std::string const &netmask)
 	/* Set interface properties. */
 	{
 		ifreq ifr {};
-		std::strncpy(ifr.ifr_name, _name, IFNAMSIZ);
+		::strncpy(ifr.ifr_name, _name, IFNAMSIZ);
 
 		ifr.ifr_flags = IFF_MULTICAST | IFF_NOARP | IFF_UP;
 
@@ -100,7 +98,7 @@ void CTuna::TUN::intercept()
 	auto addr_gateway { reinterpret_cast<sockaddr_in *>(&rt.rt_gateway) };
 	addr_gateway->sin_family = AF_INET;
 
-	if (::inet_pton(addr_gateway->sin_family, _addr.c_str(), &addr_gateway->sin_addr) != 1)
+	if (::inet_pton(addr_gateway->sin_family, _addr, &addr_gateway->sin_addr) != 1)
 		throw TUN_error { "inet_pton failed for IP address" };
 
 	auto addr_dst { reinterpret_cast<sockaddr_in *>(&rt.rt_dst) };
@@ -119,13 +117,11 @@ void CTuna::TUN::intercept()
 }
 
 
-std::vector<std::uint8_t> CTuna::TUN::read()
+size_t CTuna::TUN::read(uint8_t *buf, size_t buf_size)
 {
-	static std::uint8_t buf[1024];
-
 	ssize_t bytes_read;
-	if ((bytes_read = ::read(_fd, buf, sizeof(buf))) == -1)
+	if ((bytes_read = ::read(_fd, buf, buf_size)) == -1)
 		throw TUN_error { "failed to read from TUN interface" };
 
-	return std::vector<std::uint8_t>(buf, buf + bytes_read);
+	return static_cast<size_t>(bytes_read);
 }

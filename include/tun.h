@@ -1,10 +1,8 @@
 #ifndef _INCLUDE_TUN_H_
 #define _INCLUDE_TUN_H_
 
-/* stdcxx includes */
-#include <cstdint>
-#include <string>
-#include <vector>
+/* libc includes */
+#include <stdint.h>
 
 /* Linux includes */
 #include <linux/if.h>
@@ -33,27 +31,27 @@ class CTuna::TUN
 
 		char _name[IFNAMSIZ];
 
-		std::string _addr;
-		std::string _netmask;
+		char const *_addr;
+		char const *_netmask;
 
 	public:
 
 		~TUN();
 
-		std::string name() const
+		char const *name() const
 		{ return _name; }
 
-		std::string addr() const
+		char const *addr() const
 		{ return _addr; }
 
-		std::string netmask() const
+		char const *netmask() const
 		{ return _netmask; }
 
-		void open(std::string const &addr, std::string const &netmask);
+		void open(char const *addr, char const *netmask);
 
 		void intercept();
 
-		std::vector<std::uint8_t> read();
+		size_t read(uint8_t *buf, size_t buf_size);
 };
 
 
