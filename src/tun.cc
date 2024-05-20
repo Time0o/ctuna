@@ -18,7 +18,7 @@
 #include "tun.h"
 
 
-TUN::~TUN()
+CTuna::TUN::~TUN()
 {
 	if (_fd != -1)
 		::close(_fd);
@@ -28,7 +28,7 @@ TUN::~TUN()
 }
 
 
-void TUN::open(std::string const &addr, std::string const &netmask)
+void CTuna::TUN::open(std::string const &addr, std::string const &netmask)
 {
 	/* Open /dev/net/tun. */
 	if ((_fd = ::open("/dev/net/tun", O_RDWR)) == -1)
@@ -93,7 +93,7 @@ void TUN::open(std::string const &addr, std::string const &netmask)
 }
 
 
-void TUN::intercept()
+void CTuna::TUN::intercept()
 {
 	/* Set default route to interface. */
 	rtentry rt {};
@@ -120,7 +120,7 @@ void TUN::intercept()
 }
 
 
-std::vector<std::uint8_t> TUN::read()
+std::vector<std::uint8_t> CTuna::TUN::read()
 {
 	static std::uint8_t buf[1024];
 

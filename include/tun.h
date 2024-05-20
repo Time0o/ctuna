@@ -9,8 +9,12 @@
 /* Linux includes */
 #include <linux/if.h>
 
+namespace CTuna {
+	class TUN;
+}
 
-class TUN
+
+class CTuna::TUN
 {
 	private:
 

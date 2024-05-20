@@ -6,6 +6,8 @@
 #include "cap.h"
 #include "tun.h"
 
+using namespace CTuna;
+
 
 void run()
 {

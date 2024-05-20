@@ -8,7 +8,7 @@
 #include "cap.h"
 
 
-void check_cap(cap_value_t cap)
+void CTuna::check_cap(cap_value_t cap)
 {
 	auto caps { ::cap_get_proc() };
 

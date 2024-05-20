@@ -4,7 +4,10 @@
 /* Linux includes */
 #include <sys/capability.h>
 
-void check_cap(cap_value_t cap);
+namespace CTuna {
+
+	void check_cap(cap_value_t cap);
+}
 
 
 #endif /* _INCLUDE_CAP_H_ */
