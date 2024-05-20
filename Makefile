@@ -1,7 +1,8 @@
 bin/ctuna: src/main.cc src/cap.cc src/tun.cc
-	g++ -Wall -Werror $^ -o $@ -Iinclude -lcap
+	g++ -Wall -Werror -Wextra $^ -o $@ -Iinclude -lcap
+	sudo setcap cap_net_admin=ep $@
 
-.PHONY: install
+.PHONY: clean
 
-install: bin/ctuna
-	cp $< /usr/local/bin
+clean:
+	rm bin/ctuna
