@@ -11,11 +11,11 @@
 using namespace CTuna;
 
 
-void run()
+void run(char const *tun_name, char const *tun_addr)
 {
 	check_cap(CAP_NET_ADMIN);
 
-	TUN tun { "tunnel", "10.0.0.0" };
+	TUN tun { tun_name, tun_addr };
 
 	tun.intercept();
 
@@ -28,13 +28,18 @@ void run()
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
+	if (argc != 3) {
+		::fprintf(stderr, "Usage: %s TUN_NAME TUN_ADDR\n", argv[0]);
+		return EXIT_FAILURE;
+	}
+
 	try {
-		run();
+		run(argv[1], argv[2]);
 
 	} catch (Exception const &e) {
-		::fprintf(stderr, "error: %s\n", e.what());
+		::fprintf(stderr, "Error: %s\n", e.what());
 		return EXIT_FAILURE;
 	}
 
