@@ -15,6 +15,12 @@
 #include "tun.h"
 
 
+CTuna::TUN::TUN(char const *name)
+:
+	_name { name }
+{ }
+
+
 CTuna::TUN::~TUN()
 {
 	if (_fd != -1)
@@ -38,12 +44,12 @@ void CTuna::TUN::open(char const *addr, char const *netmask)
 	/* Create TUN interface. */
 	{
 		ifreq ifr {};
+		::strncpy(ifr.ifr_name, _name, IFNAMSIZ);
 		ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
 
 		if (::ioctl(_fd, TUNSETIFF, &ifr) == -1)
 			throw TUN_error { "failed to create TUN interface" };
 
-		::strncpy(_name, ifr.ifr_name, IFNAMSIZ);
 	}
 
 	/* Assign IP address and netmask. */
@@ -110,7 +116,7 @@ void CTuna::TUN::intercept()
 	addr_genmask->sin_addr.s_addr = INADDR_ANY;
 
 	rt.rt_flags = RTF_UP | RTF_GATEWAY;
-	rt.rt_dev = _name;
+	rt.rt_dev = const_cast<char *>(_name);
 
 	if (::ioctl(_sock, SIOCADDRT, &rt) == -1)
 		throw TUN_error { "failed to set default route to TUN interface" };

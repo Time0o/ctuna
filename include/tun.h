@@ -29,12 +29,13 @@ class CTuna::TUN
 		int _fd { -1 };
 		int _sock { -1 };
 
-		char _name[IFNAMSIZ];
-
+		char const *_name;
 		char const *_addr;
 		char const *_netmask;
 
 	public:
+
+		explicit TUN(char const *name);
 
 		~TUN();
 
