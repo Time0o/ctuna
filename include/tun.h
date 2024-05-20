@@ -9,9 +9,19 @@
 /* Linux includes */
 #include <linux/if.h>
 
+/* local includes */
+#include "exception.h"
+
 namespace CTuna {
+	struct TUN_error;
 	class TUN;
 }
+
+
+struct CTuna::TUN_error : public Exception
+{
+	using Exception::Exception;
+};
 
 
 class CTuna::TUN

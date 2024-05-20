@@ -1,7 +1,6 @@
 /* stdcxx includes */
 #include <cstdint>
 #include <cstring>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -32,11 +31,11 @@ void CTuna::TUN::open(std::string const &addr, std::string const &netmask)
 {
 	/* Open /dev/net/tun. */
 	if ((_fd = ::open("/dev/net/tun", O_RDWR)) == -1)
-		throw std::runtime_error("failed to open /dev/net/tun");
+		throw TUN_error { "failed to open /dev/net/tun" };
 
 	/* Create socket. */
 	if ((_sock = ::socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-		throw std::runtime_error("failed create socket");
+		throw TUN_error { "failed create socket" };
 
 	/* Create TUN interface. */
 	{
@@ -44,7 +43,7 @@ void CTuna::TUN::open(std::string const &addr, std::string const &netmask)
 		ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
 
 		if (::ioctl(_fd, TUNSETIFF, &ifr) == -1)
-			throw std::runtime_error("failed to create TUN interface");
+			throw TUN_error { "failed to create TUN interface" };
 
 		std::strncpy(_name, ifr.ifr_name, IFNAMSIZ);
 	}
@@ -59,23 +58,23 @@ void CTuna::TUN::open(std::string const &addr, std::string const &netmask)
 
 		/* Assign IP address. */
 		if (::inet_pton(addr_.sin_family, addr.c_str(), &addr_.sin_addr) != 1)
-			throw std::runtime_error("inet_pton failed for IP address");
+			throw TUN_error { "inet_pton failed for IP address" };
 
 		ifr.ifr_addr = *reinterpret_cast<sockaddr *>(&addr_);
 
 		if (::ioctl(_sock, SIOCSIFADDR, &ifr) == -1)
-			throw std::runtime_error("failed to set IP address for TUN interface");
+			throw TUN_error { "failed to set IP address for TUN interface" };
 
 		_addr = addr;
 
 		/* Assign netmask. */
 		if (::inet_pton(addr_.sin_family, netmask.c_str(), &addr_.sin_addr) != 1)
-			throw std::runtime_error("inet_pton failed for netmask");
+			throw TUN_error { "inet_pton failed for netmask" };
 
 		ifr.ifr_netmask = *reinterpret_cast<sockaddr *>(&addr_);
 
 		if (::ioctl(_sock, SIOCSIFNETMASK, &ifr) == -1)
-			throw std::runtime_error("failed to set netmask for TUN interface");
+			throw TUN_error { "failed to set netmask for TUN interface" };
 
 		_netmask = netmask;
 	}
@@ -88,7 +87,7 @@ void CTuna::TUN::open(std::string const &addr, std::string const &netmask)
 		ifr.ifr_flags = IFF_MULTICAST | IFF_NOARP | IFF_UP;
 
 		if (::ioctl(_sock, SIOCSIFFLAGS, &ifr) == -1)
-			throw std::runtime_error("failed to set TUN interface into 'up' state");
+			TUN_error { "failed to set TUN interface into 'up' state" };
 	}
 }
 
@@ -102,7 +101,7 @@ void CTuna::TUN::intercept()
 	addr_gateway->sin_family = AF_INET;
 
 	if (::inet_pton(addr_gateway->sin_family, _addr.c_str(), &addr_gateway->sin_addr) != 1)
-		throw std::runtime_error("inet_pton failed for IP address");
+		throw TUN_error { "inet_pton failed for IP address" };
 
 	auto addr_dst { reinterpret_cast<sockaddr_in *>(&rt.rt_dst) };
 	addr_dst->sin_family = AF_INET;
@@ -116,7 +115,7 @@ void CTuna::TUN::intercept()
 	rt.rt_dev = _name;
 
 	if (::ioctl(_sock, SIOCADDRT, &rt) == -1)
-		throw std::runtime_error("failed to set default route to TUN interface");
+		throw TUN_error { "failed to set default route to TUN interface" };
 }
 
 
@@ -126,7 +125,7 @@ std::vector<std::uint8_t> CTuna::TUN::read()
 
 	ssize_t bytes_read;
 	if ((bytes_read = ::read(_fd, buf, sizeof(buf))) == -1)
-		throw std::runtime_error("failed to read from TUN interface");
+		throw TUN_error { "failed to read from TUN interface" };
 
 	return std::vector<std::uint8_t>(buf, buf + bytes_read);
 }

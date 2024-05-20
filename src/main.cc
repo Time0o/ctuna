@@ -4,6 +4,7 @@
 
 /* local includes */
 #include "cap.h"
+#include "exception.h"
 #include "tun.h"
 
 using namespace CTuna;
@@ -31,7 +32,7 @@ int main()
 	try {
 		run();
 
-	} catch (std::exception const &e) {
+	} catch (Exception const &e) {
 		std::cerr << "error: " << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}

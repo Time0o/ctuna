@@ -1,6 +1,3 @@
-/* stdcxx lib includes */
-#include <stdexcept>
-
 /* Linux includes */
 #include <sys/capability.h>
 
@@ -16,5 +13,5 @@ void CTuna::check_cap(cap_value_t cap)
 	::cap_get_flag(caps, cap, CAP_EFFECTIVE, &flag);
 
 	if (!flag)
-	  throw std::runtime_error { "missing capability" };
+	  throw Cap_missing { "missing capability" };
 }
